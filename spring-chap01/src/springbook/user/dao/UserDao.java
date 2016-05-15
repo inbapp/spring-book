@@ -13,14 +13,22 @@
 package springbook.user.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import springbook.user.domain.User;
 
-public class UserDao {
+/**
+ * 상속을 통한 확장을 위해 UserDao를 추상클래스로 만듬.
+ * 이렇게 슈퍼클래스에 기본적인 로직의 흐름(컨넥션 가져오기, SQL생성, 실행, 반환)을 만들고 그 기능의 일부를
+ * 추상 메소드나 오버라이딩이 가능한 protect 메소드 등으로 만든뒤 서브클래스에서 이런 메소드를 필요에 맞게
+ * 구현해서 사용 하도록 하는 방법을 템플릿 메소스 패턴 이라고 한다.
+ * 
+ * @author xinu
+ *
+ */
+public abstract class UserDao {
 
 	/**
 	 * 
@@ -41,19 +49,6 @@ public class UserDao {
 		ps.close();
 		c.close();
 
-	}
-
-	/**
-	 * Connection 만들기 추출로 완성된 메소드
-	 * 
-	 * @return
-	 * @throws ClassNotFoundException
-	 * @throws SQLException
-	 */
-	private Connection getConnection() throws ClassNotFoundException, SQLException {
-		Class.forName("com.mysql.jdbc.Driver");
-		Connection c = DriverManager.getConnection("jdbc:mysql://192.168.99.100/springbook", "sb", "sb");
-		return c;
 	}
 
 	/**
@@ -85,24 +80,13 @@ public class UserDao {
 		return user;
 	}
 
-	public static void main(String[] args) throws ClassNotFoundException, SQLException {
+	/**
+	 * 상속을 받은 클래스들이 구현해야할 getConnection()
+	 * 
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
 
-		UserDao dao = new UserDao();
-
-		User user = new User();
-		user.setId("whiteship");
-		user.setName("백기선");
-		user.setPassword("married");
-
-		dao.add(user);
-
-		System.out.println(user.getId() + "등록성공");
-
-		User user2 = dao.get(user.getId());
-
-		System.out.println(user2.getName());
-		System.out.println(user2.getPassword());
-
-		System.out.println(user2.getId() + "조회성공");
-	}
 }
